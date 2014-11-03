@@ -1,0 +1,3 @@
+﻿outputfolder=
+trace=true
+web.config.local=[root.config,dev.config,dev.local.config]

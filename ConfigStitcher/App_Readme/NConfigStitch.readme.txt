@@ -1,0 +1,157 @@
+﻿Hello, and thanks for trying out NConfigStitch. I hope it works as well for you as it has for me.
+
+---- PROJECT GOAL: ----
+NConfigStitch aims to fill a void within the Microsoft .Net application stack.
+So many of the products and technologies which originate in Redmond are XML-config based,
+yet there is no easy way to manage configuration for complex deployment scenarios: 
+By "complex" I mean
+- deploying the same codebase to several different environments (test, stage, prod) // this is possible using standard config transforms, although the syntax has a learning curve, 
+																					// and you need to compile the codebase once for each target even if the only thing that changes is the config)
+- having multiple installations within a single environment (e.g. load balanced) where each install might need small differences in config
+- having multiple developers each with their own small needs for differences in config files (connection strings, paths etc)
+
+NConfigStitch assembles partial .config files, each containing as little config as possible
+ - all config files are created before each build
+ - the web.config/app.config file in the folder root is stitched together with a local config file which is not shared among developers
+   thus giving each developer the option to have configs specific to him/her
+ - a recipe is provided for each config file which informs NConfigStitch on how to assemble the config file
+
+
+---- THE NITTY GRITTY ----
+
+NConfigStitch stitches config files together from partial input files. 
+In order to create complete output files you need some partial input files and some recipes which specify which input files in which order of precedence 
+make up which output files
+for instance the following partial input files
+/config/input/
+			- web.root.config
+			- web.dev.config
+			- web.dev.local.config  //this file is typically not checked into SCM system. each developer maintains his own copy
+			- web.test.config
+			- web.prod.config
+			- web.master.config
+			- web.slave.config
+could easily be stitched together to make the following resulting complete config files
+/
+- web.config
+
+/config/output/
+	- web.test.slave.config
+	- web.test.master.config
+	- web.stage.slave.config
+	- web.stage.master.config
+	- web.prod.slave.config
+	- web.prod.master.config
+
+a recipe for creating one of these config would look like this:
+setup["/config/output/web.test.slave.config"] = new[]{"web.root.config","web.slave.config","web.test.config"};
+which roughly translates to 
+in order to create the config file "web.test.slave.config", first take the root config file which applies everywhere, 
+then override it with the stuff which is applicable to slave instances, then override the result of that with the stuff that is 
+applicable to installations in the test environment
+
+Let me use this imaginary conversation to show you its features
+-------
+-Q: What do you mean by overriding XML? AFAIK there is no concept of overriding in the XML spec!
+-A: Firstly: Relax! There is no complex XSLT syntax to learn, in order to override something you just specify the same nodes again in a later file
+-Q: "Later file?" what does that mean?
+-A: Well the recipe specifies files in order, so a "later file" would be a file which comes later in the recipe, thus being able to override xml specified in the previous file
+-Q: So how DO you "override" stuff?
+-A: You just specify it the way you want it to be
+-Q: ????
+-A: look, say for instance that the only config you need to change for the test environment is an appsetting, setting "IsTest" to true, then the entire input file of web.test.config would look like this:
+<configuration>
+	<appSettings>
+		<add key="IsTest" value="True" />
+	</appSetting>
+</configuration>
+-Q: But that's not a valid configuration file for a web project!
+-A: It doesn't need to be, it does, however, need to be valid XML. The main configuration is found in the web.root.config. The job for web.test.config is just to override what needs to be overridden.
+-Q: Ok, so in your example, what happens if the root file didn't specify "IsTest" at all
+-A: Then it gets added
+-Q: But if it *had* specified it to "False" for instance
+-A: Then it gets updated to "True"
+-Q: But how does it know *which* appsetting to update?
+-A: Well, NConfigStitch uses a list of magic identifier attributes:  "id","name","key","path","virtualPath","href","namespace". so long as one of them is available it matches the node by this attribute
+-Q: Is that list comprehensive?
+-A: I don't know
+-Q: But what if I need to add a new identifier attribute?
+-A: Then you add it in line 23 in NConfigStitch.ttinclude, YOU control the sourcecode.
+-Q: But what if there *is* no available identifier attributes on the stuff I want to override?
+-A: Well, if there is only one XML node available to be overridden, then you are fine, but if there are many available nodes NConfigStitch cannot determine *which* you want to change, so it will throw an exception at you.
+-Q: But what if I want to delete a node?
+-A: If you want to delete stuff, you will have to use the magic keyword "DELETEME"
+-Q: Huh?
+-A: Say that you wanted to delete the appsetting "IsTest" altogether in your production environment, then the web.prod.config would need to include this XML snippet (the ... is not to be taken literally, it just means there is probably more in this file than what is relevant to this example)
+<configuration>
+	...
+	<appSettings>
+		<add key="IsTest" DELETEME="True" />
+		...
+	</appSetting>
+	...
+</configuration>
+
+-Q: Wait, WHAT? "DELETEME" is not a valid attribute on appSettings?
+-A: don't you get it? setting the attribute DELETEME to true is a signal to NConfigStitch to remove the entire node and all its children
+-Q: Oh, yeah, I get it. But how do you delete just an attribute, not the entire node?
+-A: Like this:
+<configuration>
+	...
+	<appSettings>
+		<add key="IsTest" value="DELETEME" />
+		...
+	</appSetting>
+	...
+</configuration>
+-A: Although that would leave the appsetting in a sorry state, having a key but no value. It's not an often used feature, deleting attributes...
+-Q: your examples leaves much to be desired
+-A: ....?
+-Q: for instance, one could read the entire transcript of this little chat and get the idea that you have made this whole elaborate scheme just to twiddle around with appSettings.
+-A: That's not true at all, it works on all aspects of config files
+-Q: So what do YOU use it for?
+-A: Well connectionstrings naturally, and WCF endpoint configuration. I use it to switch off authentication locally when I can't be bothered to log into my own site when developing it, etc.
+-Q: WCF endpoints?
+-A: OH YEAH! the only thing which changes from environment to environment is typically the url, so you only need to specify this in each of the overriding files: like this:
+<configuration>
+	...
+	<system.serviceModel>
+		<client>
+			<endpoint address="http://myserver:8080/MyService.svc"  name="BasicHttpBinding_IMyService" />
+			...
+		</client>
+	</system.serviceModel>
+</configuration>
+-A: You see that NConfigStitch can match the endpoint on the name attribute, thus knowing which endpoint config to override.
+-Q: I see how that can make WCF config a little less intimidating, but you usually place connectionstrings in a separate config file..
+-A: not me, I find it easier to have it within web.config and just stitch the correct values in through NConfigStitch
+-Q: So, which types of projects would you use NConfigStitch, and which projects doesn't it fit?
+-A: If you are the only dev and you are only ever going to run your app on your own dev machine, then NConfigStitch doesn't bring you anything useful. But for all other projects I find it is a great help
+-------
+
+
+---- TO SUM UP ----
+
+NConfigStitch offers
+- A sensible management of config files 
+-- Support for different environments
+-- Support for different config for different "flavors" of your app
+-- Support for different config on a per machine-basis
+-- Support for each developer to have their own settings
+-- Having one deployment package which can be deployed everywhere which contains *all* permutations
+--- Compile once, deploy everywhere
+
+oh: and it's completely free, and by installing this Nuget package you've already gotten all the source code so feel free to hack it any which way you need
+
+Yours
+Andreas Knudsen
+
+PS: (All use is naturally at your own risk, 
+I have used this on all my projects the last 2 years, ranging from small small, to ultracomplex multitenant multiinstall sites 
+and I honestly believe this is a superior altenative managing configuration files in .Net, however your mileage may vary)
+
+Questions / suggestions / etc:
+email me @ andreas.knudsen [a] gmail.com
+or tweet me @andreakn
+
+ 

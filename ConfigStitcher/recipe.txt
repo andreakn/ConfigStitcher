@@ -1,0 +1,47 @@
+﻿------------------  start of instructions  ------------------
+# ConfigStitcher recipe file format:
+
+# start lines with "trace", "outputfolder", "inputfolder" or "recurse" (without quotes) to tweak settings within the recipe
+# trace = (true/false) should each attribute specify from which file they were fetched (this makes the config file unusable but can help debug problems)
+# outputfolder = where to put the resulting config file
+# inputfolder = where to search for input config files
+# recurse = (true/fals) should the program search recursively under the inputfolder until a matching input file is found
+# paths are relative to this recipe (unless they are rooted)
+
+# valid comment characters are "#", "//", "--" (comments can only be used on the start of a line)
+
+# empty lines and leading/trailing whitespace are ignored 
+
+# specify recipes on one line: outputfilename=[inputfile1, inputfile2, etc...]
+# or on many lines:
+# outputfilename=
+# [
+# inputfilename1
+# inputfilename2
+# etc...
+# ]
+
+# "[" and "]" marks the start and end of recipe inputs
+
+# start lines with "recipe" to start a nested recipe (will only log to console if no recipe is found in location)
+# a nested recipe starts out inheriting its parents settings for inputfolder/outputfolder/recurse
+# any tweaks to the settings will not affect its parents settings
+# all paths in a child recipe are relative to that recipes location
+ 
+------------------  end of instructions  ------------------
+outputfolder=c:\temp\input
+inputfolder=c:\temp\output
+
+
+recipe=localrecipe.txt
+
+
+recipe=nonexisting.txt
+
+web.test.config=
+[
+root.config
+test.config
+]
+
+
