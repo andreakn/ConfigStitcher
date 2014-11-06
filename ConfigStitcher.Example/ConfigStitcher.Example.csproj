@@ -45,10 +45,15 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="config\input\App.dev.local.config" />
-    <None Include="config\input\App.dev.config" />
+    <None Include="config\input\App.dev.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="config\input\App.prod.config" />
-    <None Include="config\input\App.test.config" />
+    <None Include="config\input\App.test.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="config\input\App.root.config" />
   </ItemGroup>
   <ItemGroup>

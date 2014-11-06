@@ -228,3 +228,12 @@ $RECYCLE.BIN/
 *.msi
 *.msm
 *.msp
+
+# Configstitcher output
+*/[Aa]pp.[Cc]onfig
+App.config
+[Aa]pp.[Dd]ev.[Ll]ocal.[Cc]onfig
+[Ll]ocal[Rr]ecipe.[Tt]xt
+config/output/
+example/output/
+

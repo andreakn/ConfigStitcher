@@ -58,7 +58,7 @@ namespace ConfigStitcher.Stitching
          line = line.Trim();
          if (!string.IsNullOrEmpty(line))
          {
-            var inputFilenamesInLine = line.Split(',');
+            var inputFilenamesInLine = line.Split(',').Select(s=>s.Trim());
             foreach (var s in inputFilenamesInLine)
             {
                if(!string.IsNullOrWhiteSpace(s))
