@@ -1,11 +1,10 @@
 ﻿using System.Xml.Linq;
 
-namespace ConfigStitcher
+namespace ConfigStitcher.Stitching
 {
-   public class RecipeResult
-   {
-      public Recipe Recipe { get; set; }
-      public XDocument Result { get; set; }
-
-   }
+    public class RecipeResult
+    {
+        public Recipe Recipe { get; set; }
+        public XDocument Result { get; set; }
+    }
 }

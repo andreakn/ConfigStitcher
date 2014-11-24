@@ -29,19 +29,17 @@
 # all paths in a child recipe are relative to that recipes location
  
 ------------------  end of instructions  ------------------
-outputfolder=c:\temp\input
-inputfolder=c:\temp\output
-
+inputfolder=example\input
+outputfolder=example\output
 
 recipe=localrecipe.txt
 
+#recipe=nonexisting.txt
 
-recipe=nonexisting.txt
-
-web.test.config=
+App.config=
 [
-root.config
-test.config
+App.config
+App.dev.config
 ]
 
 

@@ -34,7 +34,7 @@ outputfolder=.\output
 
 
 app.test.config=[app.root.config, app.test.config]
-app.prod.config=[app.root.config, app.prod.config]
+app.prod.config=[app.root.config, app.prod.config, app.doesntexist.doesntmatter.config]
 
 # referring to the local recipe (which might or might not exist) which is responsible for creating local config
 recipe=..\localrecipe.txt
