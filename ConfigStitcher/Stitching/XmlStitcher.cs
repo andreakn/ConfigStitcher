@@ -10,7 +10,7 @@ namespace ConfigStitcher.Stitching
         public RecipeResult MergeConfigFiles(RecipeInputs inputs, bool enableTrace)
         {
             var ret = new RecipeResult { Recipe = inputs.Recipe };
-            var merger = new XmlConfigMerge(enableTrace, "id", "name", "key", "path", "virtualPath", "href", "namespace");
+            var merger = new XmlConfigMerge(enableTrace, "statusCode", "id", "name", "key", "path", "virtualPath", "href", "namespace");
             ret.Result = merger.MergeConfigs(inputs.OrderedInputs());
             return ret;
         }
