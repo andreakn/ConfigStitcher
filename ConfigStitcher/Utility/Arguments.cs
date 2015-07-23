@@ -9,17 +9,16 @@
 * Version:		1.0
 */
 
-using System;
 using System.Collections.Specialized;
 using System.Text.RegularExpressions;
 
-namespace CommandLine.Utility{
+namespace ConfigStitcher.Utility{
 	/// <summary>
 	/// Arguments class
 	/// </summary>
 	public class Arguments{
 		// Variables
-		private StringDictionary Parameters;
+		private readonly StringDictionary Parameters;
 
 		// Constructor
 		public Arguments(string[] Args){
