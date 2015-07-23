@@ -5,7 +5,7 @@
 # trace = (true/false) should each attribute specify from which file they were fetched (this makes the config file unusable but can help debug problems)
 # outputfolder = where to put the resulting config file
 # inputfolder = where to search for input config files
-# recurse = (true/fals) should the program search recursively under the inputfolder until a matching input file is found
+# recurse = (true/false) should the program search recursively under the inputfolder until a matching input file is found
 # paths are relative to this recipe (unless they are rooted)
 
 # valid comment characters are "#", "//", "--" (comments can only be used on the start of a line)
