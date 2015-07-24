@@ -90,7 +90,10 @@ namespace ConfigStitcher.Stitching
             {
                 if (Path.IsPathRooted(inputFilename))
                 {
-                    ret.AddInputFile(inputFilename);
+                    if (File.Exists(inputFilename))
+                    {
+                        ret.AddInputFile(inputFilename);
+                    }
                 }
                 else
                 {
@@ -102,6 +105,10 @@ namespace ConfigStitcher.Stitching
                 }
             }
 
+            if (!ret.InputFilePaths.Any())
+            {
+                throw new Exception("Cannot find ANY inputs according to recipe " + (Recurse?"in subfolders of ":"in folder ") +inputRootDir+". Was looking for the following: "+string.Join(", ",_inputFilenames));
+            }
 
             _outputFileName = null; //ensure crash rather than reuse if invalid syntax
             _inputFilenames = null; //ensure crash rather than reuse if invalid syntax

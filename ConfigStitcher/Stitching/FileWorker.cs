@@ -21,6 +21,7 @@ namespace ConfigStitcher.Stitching
                     ret.Inputs[inputFile] = xml;
                 }
             }
+           
             return ret;
         }
 
